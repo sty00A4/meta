@@ -150,7 +150,11 @@ return {
                     term.clear()
                     self.pages[self.current]:update(self)
                     self.pages[self.current]:draw(self)
-                    local event = { os.pullEvents({"key", "char", "mouse_click", "mouse_scroll"}) }
+                    local event = { os.pullEventsRaw({"key", "char", "mouse_click", "mouse_scroll", "terminate"}) }
+                    if event[1] == "terminate" then
+                        if metatype(self.context._TERMINATE) == "function" then self.context._TERMINATE(self)
+                        else os.exit() end
+                    end
                     self.pages[self.current]:event(event, self)
                 end
             end
