@@ -153,7 +153,7 @@ return {
                     local event = { os.pullEventsRaw({"key", "char", "mouse_click", "mouse_scroll", "terminate"}) }
                     if event[1] == "terminate" then
                         if metatype(self.context._TERMINATE) == "function" then self.context._TERMINATE(self)
-                        else os.exit() end
+                        else error() end
                     end
                     self.pages[self.current]:event(event, self)
                 end

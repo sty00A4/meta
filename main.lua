@@ -14,6 +14,6 @@ local app = gui.app(
         })
     },
     "main",
-    { version = "0.1", _TERMINATE = function() os.shutdown() end }
+    { version = "0.1", __TERMINATE = function(_) os.shutdown() end }
 )
 app:loop()
