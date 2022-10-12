@@ -2,12 +2,16 @@ require("meta.libs.ext")
 
 return {
     position = {
-        absolute = function(x, y, w, h)
+        ---@param x number
+        ---@param y number
+        absolute = function(x, y)
             expect("x", x, "number")
             expect("y", y, "number")
             return setmetatable({ x = x, y = y }, { __name = "gui.component.position.absolute" })
         end,
-        relative = function(x, y, w, h)
+        ---@param x number
+        ---@param y number
+        relative = function(x, y)
             expect("x", x, "number") range("x", x, 0, 1)
             expect("y", y, "number") range("y", y, 0, 1)
             return setmetatable({
@@ -15,6 +19,9 @@ return {
             }, { __name = "gui.component.position.relative" })
         end,
     },
+    ---@param content string
+    ---@param fg number
+    ---@param bg number
     text = function(content, fg, bg)
         expect("content", content, "string")
         expect("fg", fg, "number")
@@ -32,6 +39,10 @@ return {
             end,
         }, { __name = "gui.component.text" })
     end,
+    ---@param position table
+    ---@param text table
+    ---@param action function|nil
+    ---@param color number|nil
     button = function(position, text, action, color)
         if color == nil then color = colors.gray end
         expect("position", position, "gui.component.position")
@@ -69,6 +80,7 @@ return {
             end
         },{ __name = "gui.element.button" })
     end,
+    ---@param components table
     element = function(components)
         expect("components", components, "table")
         local t = { components = components }
@@ -96,6 +108,9 @@ return {
         for k, v in pairs(components) do expect(k, v, "gui.component") end
         return setmetatable(t, { __name = "gui.element.custom" })
     end,
+    ---@param elements table
+    ---@param context table
+    ---@param color number
     page = function(elements, context, color)
         if color == nil then color = colors.black end
         if context == nil then context = {} end
@@ -122,6 +137,9 @@ return {
             end,
         },{ __name = "gui.page" })
     end,
+    ---@param pages table
+    ---@param start string
+    ---@param context table
     app = function(pages, start, context)
         if context == nil then context = {} end
         expect("pages", pages, "table")
