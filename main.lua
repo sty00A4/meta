@@ -9,7 +9,7 @@ local app = gui.app(
                 gui.text("button", colors.white, colors.black),
                 function(self, page, app)
                     local w, h = term.getSize()
-                    self.components.position.x = math.random(1, w - #self.components.text.content)
+                    self.components.position.x = math.random(1, w - #self.components.text.content - 1)
                     self.components.position.y = math.random(1, h)
                 end
             ),
