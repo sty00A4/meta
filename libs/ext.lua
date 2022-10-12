@@ -17,6 +17,14 @@ table.contains = function(t, e)
     end
     return false
 end
+table.join = function(t, sep)
+    local str = ""
+    for _, v in pairs(t) do
+        str = str .. tostring(v) .. sep
+    end
+    if #str > 0 then str = str:sub(1,#str-#sep) end
+    return str
+end
 table.containsKey = function(t, key)
     for k, _ in pairs(t) do
         if k == key then return true end
@@ -142,7 +150,7 @@ function expect(label, value, ...)
         end
         if match then matches = true break end
     end
-    if not matches then error("expected "..label.." to be of type "..t..", not "..typ, 3) end
+    if not matches then error("expected "..label.." to be of type "..table.join(types, "|")..", not "..typ, 3) end
 end
 ---@param label string
 ---@param type string
