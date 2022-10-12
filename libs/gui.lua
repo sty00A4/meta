@@ -52,15 +52,19 @@ return {
                 term.pop()
             end,
             event = function(self, event, page, app)
-                if type(self.action) == "function" then
-                    if event[1] == "mouse_click" then
+                if event[1] == "mouse_click" then
+                    if type(self.action) == "function" then
                         local mx, my = event[3], event[4]
                         local x, y = self.components.position.x, self.components.position.y
                         local w, h = #self.components.text.content + 2, 1
                         if (mx >= x and my >= y) and (mx < x + w and my < y + h) then
                             return self:action(event, page, app)
                         end
+                        return
                     end
+                end
+                for _, c in pairs(self.components) do
+                    if metatype(c.event) == "function" then c:event(self, event, page, app) end
                 end
             end
         },{ __name = "gui.element.button" })
@@ -126,36 +130,38 @@ return {
         for k, p in pairs(pages) do expect("pages."..tostring(k), p, "gui.page") end
         return setmetatable({
             current = start, pages = pages, start = start, context = context, run = false,
+            clear = function(self)
+                term.reset()
+                term.setBackgroundColor(self.pages[self.current].color)
+                term.clear()
+            end,
             draw = function(self)
-                for _, p in ipairs(self.pages) do
-                    if metatype(p.draw) == "function" then p:draw(self.pages[self.current], self) end
-                end
+                self.pages[self.current]:draw(self)
             end,
             update = function(self)
-                for _, p in ipairs(self.pages) do 
-                    if metatype(p.update) == "function" then p:update(self.pages[self.current], self) end
-                    end
+                self.pages[self.current]:update(self)
+            end,
+            pullEvent = function(self)
+                local event = { os.pullEventsRaw({"key", "char", "mouse_click", "mouse_scroll", "terminate"}) }
+                if event[1] == "terminate" then
+                    if metatype(self.context._TERMINATE) == "function" then self.context._TERMINATE(self)
+                    else error() end
+                end
+                return event
             end,
             event = function(self, event)
-                for _, p in ipairs(self.pages) do
-                    if metatype(p.event) == "function" then p:event(event, self.pages[self.current], self) end
-                end
+                self.pages[self.current]:event(event, self)
             end,
-            loop = function(self)
+            loop = function(self, clear)
+                if clear == nil then clear = true end
+                expect("clear", clear, "boolean")
                 self.run = true
-                local W, H = term.getSize()
                 while self.run do
-                    term.reset()
-                    term.setBackgroundColor(self.pages[self.current].color)
-                    term.clear()
-                    self.pages[self.current]:update(self)
-                    self.pages[self.current]:draw(self)
-                    local event = { os.pullEventsRaw({"key", "char", "mouse_click", "mouse_scroll", "terminate"}) }
-                    if event[1] == "terminate" then
-                        if metatype(self.context._TERMINATE) == "function" then self.context._TERMINATE(self)
-                        else error() end
-                    end
-                    self.pages[self.current]:event(event, self)
+                    if clear then self:clear() end
+                    self:update()
+                    self:draw()
+                    local event = self:pullEvent()
+                    self:event(event)
                 end
             end
         },{ __name = "gui.page" })

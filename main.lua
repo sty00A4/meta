@@ -1,6 +1,6 @@
 require("libs.ext")
 expect("gui", _G.gui, "table")
-
+term.reset()
 local app = gui.app(
     {
         main = gui.page({
@@ -8,7 +8,9 @@ local app = gui.app(
                 gui.position.absolute(1, 1),
                 gui.text("button", colors.white, colors.black),
                 function(self, page, app)
-                    self.components.position.x = self.components.position.x + 1
+                    local w, h = term.getSize()
+                    self.components.position.x = math.random(1, w - #self.components.text.content)
+                    self.components.position.y = math.random(1, h)
                 end
             ),
         })
